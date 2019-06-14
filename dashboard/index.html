@@ -1,0 +1,199 @@
+﻿<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Social Media Influencer : Dashboard</title>
+    <!-- Bootstrap Styles-->
+    <link href="assets/css/bootstrap.css" rel="stylesheet" />
+    <!-- FontAwesome Styles-->
+    <link href="assets/css/font-awesome.css" rel="stylesheet" />
+    <!-- Custom Styles-->
+    <link href="assets/css/custom-styles.css" rel="stylesheet" />
+    <!-- Google Fonts-->
+    <link href='http://fonts.googleapis.com/css?family=Open+Sans' rel='stylesheet' type='text/css' />
+</head>
+
+<body>
+    <div id="wrapper">
+        <nav class="navbar navbar-default top-navbar" role="navigation">
+            <div class="navbar-header">
+                <a class="navbar-brand" href="index.html"><strong>Dashboard</strong></a>
+            </div>
+
+            <ul class="nav navbar-top-links navbar-right">
+                <!-- /.dropdown -->
+                <!--li class="dropdown">
+                    <a class="dropdown-toggle" data-toggle="dropdown" href="#" aria-expanded="false">
+                        <i class="fa fa-user fa-fw"></i> <i class="fa fa-caret-down"></i>
+                    </a>
+                    <ul class="dropdown-menu dropdown-user">
+                        <li class="divider"></li>
+                        <li><a href="#"><i class="fa fa-sign-out fa-fw"></i> Logout</a>
+                        </li>
+                    </ul>
+                    
+                </li-->
+                <!-- /.dropdown -->
+            </ul>
+        </nav>
+		<div id="page-wrapper" style="margin: 0px">
+		  <div class="header"> 
+						<ol class="breadcrumb">
+					  <li><a href="#">Home</a></li>
+					</ol> 
+									
+		</div>
+            <div id="page-inner">
+                <div class="row">
+                    <div class="col-md-12 col-sm-12 col-xs-12">
+
+                        <div class="panel panel-default">
+                            <div class="panel-heading">
+                                Influencers Data
+                            </div> 
+                            <div class="panel-body">
+                            	<div style="text-align: center;padding:8px;"><button onclick="loadNextPage()" id="nxtBtn" class="btn btn-primary" style="margin-right:10px">Next Page</button><button onclick="loadPreviousPage()" class="btn btn-primary" id="prevBtn">Previous Page</button></div>
+                                <div class="table-responsive">
+                                    <table class="table table-striped table-bordered table-hover">
+                                        <thead>
+                                            <tr>
+                                                <th>S No.</th>
+                                                <th>Username</th>
+                                                <th>Followers Count</th>
+                                                <th>Avg. Likes Ratio</th>
+                                                <th>Avg. Comments Ratio</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="dataTable">
+                                            
+                                        </tbody>
+                                    </table>
+                                    <div id="loader" style="
+                                            background-position: center;
+                                            height: 50vh;
+                                            background-repeat: no-repeat;
+                                            background-image: url('assets/img/loader.gif');
+                                            background-size: 120px;
+                                        "></div>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+                <!-- /. ROW  -->
+			
+		
+				
+            </div>
+            <!-- /. PAGE INNER  -->
+        </div>
+        <!-- /. PAGE WRAPPER  -->
+        <footer style="background: #f6f6f6;padding: 0px 8px 8px 13px;">
+					<p>All right reserved. Designed by: </p>
+		</footer>
+    </div>
+    <!-- /. WRAPPER  -->
+    <!-- JS Scripts-->
+    <!-- jQuery Js -->
+    <script src="assets/js/jquery-1.10.2.js"></script>
+    <!-- Bootstrap Js -->
+    <script src="assets/js/bootstrap.min.js"></script>
+	 
+	
+	<script src="assets/js/axios.min.js"></script>
+
+      <script>
+      		var sno = 0;
+			function getInfluencersData(from=0,next){
+				let link = 'http://demo4469839.mockable.io/influencers';
+				if(next === true){
+					$("#loader").show();
+					$("#dataTable").hide();
+					axios.get(link)
+					    .then((response) => {
+					    	let influencers = response.data.data.allInfluencers;
+					    	var length = influencers.length;
+					    	var max = from+20;
+					    	//handle next button disable when end of list is reached
+					    	if(max>=length){
+					    		$("#nxtBtn").attr("disabled", true);
+					    	}
+
+					    	//handle previous button disable
+					    	if(sno<=0){
+					    		$("#prevBtn").attr("disabled", true);
+					    	}else{
+					    		$("#prevBtn").attr("disabled", false);
+					    	}
+
+					    	var output;
+					    	for(var i=from;i<max && i<length;i++){
+					    		output += `
+					    			<tr>
+					    			    <td>${i+1}</td>
+					    			    <td>${influencers[i].username}</td>
+					    			    <td>${influencers[i].stats.followerCount}</td>
+					    			    <td>${influencers[i].stats.engagement.avgLikesRatio}</td>
+					    			    <td>${influencers[i].stats.engagement.avgCommentsRatio}</td>
+					    			</tr>
+					    		`;
+					    	}
+					    	$("#loader").hide();
+					    	$("#dataTable").show();
+					    	$('#dataTable').html(output);	
+					    })
+					    .catch((error) => {
+					        console.log(error);
+					    });
+				}else{
+					$("#loader").show();
+					$("#dataTable").hide();
+					axios.get(link)
+					    .then((response) => {
+					    	let influencers = response.data.data.allInfluencers;
+					    	var to = from-20;
+					    	sno = to;
+					    	//handle previous btn disabled
+					    	if(sno<=0){
+					    		$("#prevBtn").attr("disabled", true);
+					    		$("#nextBtn").attr("disabled", false);
+					    	}
+					    	var output;
+					    	for(var i=sno; i<from; i++){
+
+					    		output += `
+					    			<tr>
+					    			    <td>${i+1}</td>
+					    			    <td>${influencers[i].username}</td>
+					    			    <td>${influencers[i].stats.followerCount}</td>
+					    			    <td>${influencers[i].stats.engagement.avgLikesRatio}</td>
+					    			    <td>${influencers[i].stats.engagement.avgCommentsRatio}</td>
+					    			</tr>
+					    		`;
+					    	}
+					    	$("#loader").hide();
+					    	$("#dataTable").show();
+					    	$('#dataTable').html(output);
+					    })
+					    .catch((error) => {
+					        console.log(error);
+					    });
+				}
+
+			}
+			function loadNextPage(){
+				sno+=20;
+				getInfluencersData(sno,true);
+			}
+			function loadPreviousPage(){
+				getInfluencersData(sno,false);
+			}
+			getInfluencersData(sno,true);  
+      </script>
+
+</body>
+
+</html>
